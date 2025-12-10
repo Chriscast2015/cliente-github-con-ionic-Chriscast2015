@@ -1,9 +1,21 @@
-import { IonContent, IonHeader, IonList, IonPage, IonTitle, IonToolbar } from '@ionic/react';
-import ExploreContainer from '../components/ExploreContainer';
+import { IonContent, IonHeader, IonList, IonPage, IonTitle, IonToolbar, useIonViewDidEnter } from '@ionic/react';
 import './Tab1.css';
 import RepoItem from '../components/RepoItem';
+import { RepositoryItem } from '../interfaces/RepositoryItem';
+import { useState } from 'react';
+import { fetchRepositories } from '../services/GithubServices';
 
 const Tab1: React.FC = () => {
+  const [repos, setRepos] = useState<RepositoryItem[]>([]);
+  const loadRepos = async () => {
+    const reposData = await fetchRepositories();  
+    setRepos(reposData);
+  };
+  useIonViewDidEnter(() => {
+    console.log("IonViewDidEnter: Cargando repositorios");
+    loadRepos();
+  });
+  
   return (
     <IonPage>
       <IonHeader>
@@ -18,22 +30,15 @@ const Tab1: React.FC = () => {
           </IonToolbar>
         </IonHeader>
         <IonList>
-          <RepoItem
-            name="android-project"
-            imageUrl="https://upload.wikimedia.org/wikipedia/commons/3/3e/Android_logo_2019.png"
-          />
-          <RepoItem
-            name="ios-project"
-            imageUrl="https://static.vecteezy.com/system/resources/thumbnails/021/496/368/small_2x/ios-icon-logo-software-phone-apple-symbol-with-name-black-design-mobile-illustration-free-vector.jpg"
-          />
-          <RepoItem
-            name="ionic-project"
-            imageUrl="https://cdn2.f-cdn.com/contestentries/1479674/33588341/5c86914c1921d_thumb900.jpg"
-          />  
+          {repos.map((repo, index) => (
+            <RepoItem
+              key={index}
+              repo={repo}
+            />
+          ))}
         </IonList>
       </IonContent>
     </IonPage>
   );
-};
-
+} ;
 export default Tab1;
